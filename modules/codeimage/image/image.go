@@ -21,7 +21,7 @@ func Draw(tokens token.Tokens) ([]byte, error) {
 		return nil, err
 	}
 	dc.Clear()
-	curX, curY := 0.0, 0.0
+	curX, curY := 50.0, 50.0
 
 	for _, t := range tokens {
 		switch t.Kind {
@@ -43,17 +43,26 @@ func Draw(tokens token.Tokens) ([]byte, error) {
 			}
 		case token.KindText:
 			w, h := dc.MeasureMultilineString(t.Text, 1.0)
+			dc.Push()
 			dc.SetColor(bgCol)
 			dc.DrawRectangle(curX, curY, w, h)
+			dc.Fill()
+			dc.Pop()
 			dc.SetColor(fgCol)
 			dc.DrawStringAnchored(strings.ReplaceAll(strings.ReplaceAll(t.Text, "\t", "    "), "\n", ""), curX, curY, 0.0, 1.0)
 			curX += w
 			if strings.Contains(t.Text, "\n") {
 				curY += h
-				curX = 0
+				curX = 50
 			}
 		}
 	}
+	dc.Push()
+	dc.SetColor(background)
+	dc.DrawRectangle(1150, 0, 50, 630)
+	dc.DrawRectangle(0, 580, 1200, 50)
+	dc.Fill()
+	dc.Pop()
 	buffer := new(bytes.Buffer)
 	dc.EncodePNG(buffer)
 	return buffer.Bytes(), nil
