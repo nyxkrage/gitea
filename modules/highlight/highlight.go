@@ -20,6 +20,7 @@ import (
 	"code.gitea.io/gitea/modules/util"
 
 	"github.com/alecthomas/chroma/v2"
+	"github.com/alecthomas/chroma/v2/formatters"
 	"github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/alecthomas/chroma/v2/lexers"
 	"github.com/alecthomas/chroma/v2/styles"
@@ -38,6 +39,7 @@ var (
 	cache *lru.TwoQueueCache
 
 	githubStyles = styles.Get("github")
+	mochaStyles  = styles.Get("catppuccin-mocha")
 )
 
 // NewContext loads custom highlight map from local config
@@ -192,6 +194,65 @@ func File(fileName, language string, code []byte) ([]string, string, error) {
 		}
 		lines = append(lines, htmlBuf.String())
 		htmlBuf.Reset()
+	}
+
+	return lines, lexerName, nil
+}
+
+func AnsiFile(fileName, language string, code []byte) ([]string, string, error) {
+	NewContext()
+
+	if len(code) > sizeLimit {
+		code = code[:sizeLimit]
+	}
+
+	var lexer chroma.Lexer
+
+	// provided language overrides everything
+	if language != "" {
+		lexer = lexers.Get(language)
+	}
+
+	if lexer == nil {
+		if val, ok := highlightMapping[filepath.Ext(fileName)]; ok {
+			lexer = lexers.Get(val)
+		}
+	}
+
+	if lexer == nil {
+		guessLanguage := analyze.GetCodeLanguage(fileName, code)
+
+		lexer = lexers.Get(guessLanguage)
+		if lexer == nil {
+			lexer = lexers.Match(fileName)
+			if lexer == nil {
+				lexer = lexers.Fallback
+			}
+		}
+	}
+
+	lexerName := formatLexerName(lexer.Config().Name)
+
+	iterator, err := lexer.Tokenise(nil, string(code))
+	if err != nil {
+		return nil, "", fmt.Errorf("can't tokenize code: %w", err)
+	}
+
+	tokensLines := chroma.SplitTokensIntoLines(iterator.Tokens())
+	ansiBuf := &bytes.Buffer{}
+
+	formatter := formatters.TTY16m
+
+	lines := make([]string, 0, len(tokensLines))
+	for _, tokens := range tokensLines {
+		iterator = chroma.Literator(tokens...)
+		err = formatter.Format(ansiBuf, mochaStyles, iterator)
+		if err != nil {
+			return nil, "", fmt.Errorf("can't format code: %w", err)
+		}
+
+		lines = append(lines, strings.Replace(ansiBuf.String(), "\033[3m", "", -1))
+		ansiBuf.Reset()
 	}
 
 	return lines, lexerName, nil

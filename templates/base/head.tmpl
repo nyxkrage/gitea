@@ -37,6 +37,15 @@
 	{{if .ContextUser.Description}}
 		<meta property="og:description" content="{{.ContextUser.Description}}">
 	{{end}}
+{{else if .PageIsViewCode }}
+	<meta property="og:title" content="{{.Repository.Name}}">
+	<meta property="og:url" content="{{.Repository.HTMLURL}}">
+	<meta name="twitter:card" content="summary_large_card">
+	{{if .Repository.Description}}
+		<meta property="og:description" content="{{.Repository.Description}}">
+	{{end}}
+	<meta property="og:image" content="{{.OgImage}}">
+	<meta property="og:type" content="object">
 {{else if .Repository}}
 	{{if .Issue}}
 		<meta property="og:title" content="{{.Issue.Title}}">

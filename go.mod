@@ -124,6 +124,8 @@ require (
 	xorm.io/xorm v1.3.3-0.20230219231735-056cecc97e9e
 )
 
+require github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
+
 require (
 	cloud.google.com/go/compute v1.18.0 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
@@ -135,6 +137,7 @@ require (
 	github.com/ProtonMail/go-crypto v0.0.0-20230217124315-7d5c6f04bbb8 // indirect
 	github.com/RoaringBitmap/roaring v1.2.3 // indirect
 	github.com/acomagu/bufpipe v1.0.3 // indirect
+	github.com/alecthomas/chroma v0.10.0
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
@@ -208,7 +211,9 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
+	github.com/jbuchbinder/gg v1.3.0
 	github.com/jessevdk/go-flags v1.5.0 // indirect
+	github.com/jiro4989/textimg/v3 v3.1.8
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/klauspost/pgzip v1.2.5 // indirect

@@ -27,6 +27,8 @@ import (
 	"code.gitea.io/gitea/modules/actions"
 	"code.gitea.io/gitea/modules/base"
 	"code.gitea.io/gitea/modules/charset"
+	"code.gitea.io/gitea/modules/codeimage/image"
+	"code.gitea.io/gitea/modules/codeimage/parser"
 	"code.gitea.io/gitea/modules/container"
 	"code.gitea.io/gitea/modules/context"
 	"code.gitea.io/gitea/modules/git"
@@ -515,6 +517,16 @@ func renderFile(ctx *context.Context, entry *git.TreeEntry, treeLink, rawLink st
 				statuses[i], fileContent[i] = charset.EscapeControlHTML(line, ctx.Locale)
 				status = status.Or(statuses[i])
 			}
+
+			ansiContent, _, _ := highlight.AnsiFile(blob.Name(), language, buf)
+			log.Info("%s", ansiContent[0])
+			tks, _ := parser.Parse(strings.Join(ansiContent, ""))
+			imgStr, err := image.Draw(tks)
+			if err != nil {
+				log.Error("Drawing image failed: %v", err)
+			}
+
+			ctx.Data["OgImage"] = imgStr
 			ctx.Data["EscapeStatus"] = status
 			ctx.Data["FileContent"] = fileContent
 			ctx.Data["LineEscapeStatus"] = statuses
@@ -986,6 +998,11 @@ func renderCode(ctx *context.Context) {
 	ctx.Data["TreeNames"] = treeNames
 	ctx.Data["BranchLink"] = branchLink
 	ctx.HTML(http.StatusOK, tplRepoHome)
+}
+
+func HighlightCodeToImage() error {
+
+	return nil
 }
 
 // RenderUserCards render a page show users according the input template
