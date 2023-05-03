@@ -2,7 +2,6 @@ package image
 
 import (
 	"bytes"
-	"encoding/base64"
 	"image/color"
 	"strings"
 
@@ -10,7 +9,7 @@ import (
 	"github.com/jiro4989/textimg/v3/token"
 )
 
-func Draw(tokens token.Tokens) (string, error) {
+func Draw(tokens token.Tokens) ([]byte, error) {
 	foreground := color.RGBA{205, 214, 244, 255}
 	background := color.RGBA{30, 30, 46, 255}
 
@@ -19,7 +18,7 @@ func Draw(tokens token.Tokens) (string, error) {
 	bgCol := background
 	dc.SetColor(bgCol)
 	if err := dc.LoadFontFace("fonts/FiraCode-Regular.ttf", 14); err != nil {
-		return "", err
+		return nil, err
 	}
 	dc.Clear()
 	curX, curY := 0.0, 0.0
@@ -57,5 +56,5 @@ func Draw(tokens token.Tokens) (string, error) {
 	}
 	buffer := new(bytes.Buffer)
 	dc.EncodePNG(buffer)
-	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(buffer.Bytes()), nil
+	return buffer.Bytes(), nil
 }
