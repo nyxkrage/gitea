@@ -26,6 +26,8 @@ import (
 	user_model "code.gitea.io/gitea/models/user"
 	"code.gitea.io/gitea/modules/base"
 	"code.gitea.io/gitea/modules/charset"
+	"code.gitea.io/gitea/modules/codeimage/image"
+	"code.gitea.io/gitea/modules/codeimage/parser"
 	"code.gitea.io/gitea/modules/container"
 	"code.gitea.io/gitea/modules/context"
 	"code.gitea.io/gitea/modules/git"
@@ -509,6 +511,12 @@ func renderFile(ctx *context.Context, entry *git.TreeEntry, treeLink, rawLink st
 				statuses[i], fileContent[i] = charset.EscapeControlHTML(line, ctx.Locale)
 				status = status.Or(statuses[i])
 			}
+
+			ogImg := ctx.Repo.Repository.HTMLURL() + "/src/og/" + ctx.Repo.BranchName
+			if len(ctx.Repo.TreePath) > 0 {
+				ogImg += "/" + util.PathEscapeSegments(ctx.Repo.TreePath)
+			}
+			ctx.Data["OgImage"] = ogImg
 			ctx.Data["EscapeStatus"] = status
 			ctx.Data["FileContent"] = fileContent
 			ctx.Data["LineEscapeStatus"] = statuses
@@ -697,6 +705,55 @@ func checkCitationFile(ctx *context.Context, entry *git.TreeEntry) {
 			break
 		}
 	}
+}
+
+func OgImage(ctx *context.Context) {
+	entry, err := ctx.Repo.Commit.GetTreeEntryByPath(ctx.Repo.TreePath)
+	if err != nil {
+		log.Error("%v", err)
+		return
+	}
+	blob := entry.Blob()
+	buf, dataRc, _, err := getFileReader(ctx.Repo.Repository.ID, blob)
+	if err != nil {
+		ctx.ServerError("getFileReader", err)
+		return
+	}
+	defer dataRc.Close()
+
+	language := ""
+	indexFilename, worktree, deleteTemporaryFile, err := ctx.Repo.GitRepo.ReadTreeToTemporaryIndex(ctx.Repo.CommitID)
+	if err == nil {
+		defer deleteTemporaryFile()
+		filename2attribute2info, err := ctx.Repo.GitRepo.CheckAttribute(git.CheckAttributeOpts{
+			CachedOnly: true,
+			Attributes: []string{"linguist-language", "gitlab-language"},
+			Filenames:  []string{ctx.Repo.TreePath},
+			IndexFile:  indexFilename,
+			WorkTree:   worktree,
+		})
+		if err != nil {
+			log.Error("Unable to load attributes for %-v:%s. Error: %v", ctx.Repo.Repository, ctx.Repo.TreePath, err)
+		}
+
+		language = filename2attribute2info[ctx.Repo.TreePath]["linguist-language"]
+		if language == "" || language == "unspecified" {
+			language = filename2attribute2info[ctx.Repo.TreePath]["gitlab-language"]
+		}
+		if language == "unspecified" {
+			language = ""
+		}
+	}
+
+	ansiContent, _, _ := highlight.AnsiFile(blob.Name(), language, buf)
+	log.Info("%s", ansiContent[0])
+	tks, _ := parser.Parse(strings.Join(ansiContent, ""))
+	img, err := image.Draw(tks)
+	if err != nil {
+		log.Error("Drawing image failed: %v", err)
+	}
+
+	ctx.Write(img)
 }
 
 // Home render repository home page
@@ -963,6 +1020,11 @@ func renderCode(ctx *context.Context) {
 	ctx.Data["TreeNames"] = treeNames
 	ctx.Data["BranchLink"] = branchLink
 	ctx.HTML(http.StatusOK, tplRepoHome)
+}
+
+func HighlightCodeToImage() error {
+
+	return nil
 }
 
 // RenderUserCards render a page show users according the input template

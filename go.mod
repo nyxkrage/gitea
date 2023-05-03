@@ -119,6 +119,10 @@ require (
 	xorm.io/xorm v1.3.3-0.20221209153726-f1bfc5ce9830
 )
 
+require github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
+
+require golang.org/x/image v0.0.0-20220413100746-70e8d0d3baa9 // indirect
+
 require (
 	cloud.google.com/go/compute v1.7.0 // indirect
 	git.sr.ht/~mariusor/go-xsd-duration v0.0.0-20220703122237-02e73435a078 // indirect
@@ -203,7 +207,9 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
+	github.com/jbuchbinder/gg v1.3.1-0.20220522202534-b71f553fdd3d
 	github.com/jessevdk/go-flags v1.5.0 // indirect
+	github.com/jiro4989/textimg/v3 v3.1.8
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/klauspost/pgzip v1.2.5 // indirect
