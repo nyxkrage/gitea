@@ -41,13 +41,13 @@
   <meta name="twitter:image:src" content="{{.OgImage}}">
 	<meta name="twitter:site" content="@gitea">
 	<meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:title" content="{{.Repository.Name}}">
+	<meta name="twitter:title" content="{{.Repository.Name}}/{{.FileName}}">
 	<meta name="twitter:description" content="{{.Repository.Description}}">
 	<meta property="og:image" content="{{.OgImage}}">
 	<meta property="og:image:alt" content="{{.Repository.Description}}">
 	<meta property="og:site_name" content="{{AppName}}">
 	<meta property="og:type" content="object">
-	<meta property="og:title" content="{{.Repository.Name}}">
+	<meta property="og:title" content="{{.Repository.Name}}/{{.FileName}}">
 	<meta property="og:url" content="{{.Repository.HTMLURL}}">
 	<meta property="og:description" content="{{.Repository.Description}}">
 {{else if .Repository}}
